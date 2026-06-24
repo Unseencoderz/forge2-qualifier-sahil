@@ -6,7 +6,52 @@
 
 *Hermes (brain) + OpenClaw (hands) — powered by Google Gemini 2.5 Flash*
 
-![Multi-Agent System Architecture](./demoImages/Multi-Agent%20System%20Architecture.png)
+```mermaid
+flowchart TD
+    H[Human User]
+
+    subgraph Slack ["Slack Workspace"]
+        SM["#sprint-main"]
+        AC["#agent-coder"]
+        AL["#agent-log"]
+    end
+
+    subgraph Hermes ["Hermes Agent — Brain"]
+        HM[Hermes]
+        MEM[Persistent Memory]
+        SKILL[SKILL.md]
+        CRON[Cron Jobs]
+        GEM1[Gemini 2.5 Flash]
+    end
+
+    subgraph OpenClaw ["OpenClaw Agent — Hands"]
+        OC[OpenClaw]
+        GEM2[Gemini 2.5 Flash]
+        CODE[Code Generation]
+        EXEC[File Operations]
+    end
+
+    subgraph Workspace ["Project Workspace"]
+        REPO[Kanban Project Repository]
+    end
+
+    H --> SM
+    SM --> HM
+    HM --> GEM1
+    HM --> MEM
+    HM --> SKILL
+    HM --> CRON
+    HM --> AC
+    AC --> OC
+    OC --> GEM2
+    OC --> CODE
+    OC --> EXEC
+    EXEC --> REPO
+    REPO --> AL
+    AL --> HM
+    HM --> SM
+    SM --> H
+```
 
 </div>
 
@@ -35,7 +80,19 @@ The project demonstrates a working **two-agent AI system** that collaboratively 
 
 ### Agent Workflow
 
-![Agent Workflow Diagram](./demoImages/Agent%20Workflow%20Diagram.png)
+```mermaid
+flowchart LR
+    A[Human Request] --> B["#sprint-main"]
+    B --> C[Hermes Analysis]
+    C --> D[Task Breakdown]
+    D --> E["#agent-coder"]
+    E --> F[OpenClaw Development]
+    F --> G[Code Changes]
+    G --> H[Repository]
+    H --> I["#agent-log"]
+    I --> J[Status Report]
+    J --> K[Human Review]
+```
 
 The full loop: **Human Request → #sprint-main → Hermes Analysis → Task Breakdown → #agent-coder → OpenClaw Development → Code Changes → Repository → #agent-log → Status Report → Human Review**
 
@@ -111,41 +168,103 @@ A custom `skills/status-report/SKILL.md` was written to teach Hermes how to form
 
 ### Application Architecture
 
-![Kanban Application Architecture](./demoImages/Kanban%20Application%20Architecture.png)
+```mermaid
+flowchart TD
+    subgraph Frontend
+        UI[React + Vite]
+        COMP[UI Components]
+        STATE[State Management]
+    end
+
+    subgraph Backend
+        API[Laravel REST API]
+        CTRL[Controllers]
+        SERVICE[Business Logic]
+    end
+
+    subgraph Database
+        DB[(SQLite)]
+    end
+
+    subgraph Deployment
+        NET[Netlify]
+        REN[Render]
+    end
+
+    UI --> COMP
+    COMP --> STATE
+    STATE --> API
+    API --> CTRL
+    CTRL --> SERVICE
+    SERVICE --> DB
+    NET --> UI
+    REN --> API
+```
 
 ### Deployment Architecture
 
-![Deployment Architecture](./demoImages/Deployment%20Architecture.png)
+```mermaid
+flowchart TD
+    User[End User]
+    DNS[Public URL]
+
+    subgraph FE ["Frontend Hosting"]
+        Netlify[Netlify]
+        React[React + Vite]
+    end
+
+    subgraph BE ["Backend Hosting"]
+        Render[Render]
+        Laravel[Laravel API]
+        SQLite[(SQLite DB)]
+    end
+
+    User --> DNS
+    DNS --> Netlify
+    Netlify --> React
+    React --> Laravel
+    Laravel --> SQLite
+    Render --> Laravel
+```
 
 > Frontend → **Netlify** · Backend → **Render** · Database → **SQLite**
 
 ### Database Schema
 
-![Database ER Diagram](./demoImages/Database%20ER%20Diagram%20(Kanban).png)
-
-### Agent Flow (Mermaid)
-
 ```mermaid
-flowchart TD
-    H[Human] -->|posts goal| SM[#sprint-main]
-    SM --> HB[Hermes Brain]
-    HB -->|creates plan| SM
-    HB -->|delegates task| AC[#agent-coder]
-    AC --> OC[OpenClaw Hands]
-    OC -->|writes code| FS[File System]
-    OC -->|runs commands| FS
-    OC -->|reports back| AC
-    AC -->|What I Did report| H
-    H -->|approves| HB
-    HB -->|next task| AC
+erDiagram
+    USERS ||--o{ BOARDS : owns
+    BOARDS ||--o{ COLUMNS : contains
+    COLUMNS ||--o{ TASKS : contains
 
-    HM[Hermes Memory] -.->|recalls context| HB
-    SK[SKILL.md] -.->|formats reports| OC
-    CR[Cron Job] -.->|autonomous post| SM
+    USERS {
+        int id
+        string name
+        string email
+    }
 
-    GM[Gemini 2.5 Flash] -.->|powers| HB
-    GM -.->|powers| OC
+    BOARDS {
+        int id
+        string title
+        int user_id
+    }
+
+    COLUMNS {
+        int id
+        string name
+        int board_id
+    }
+
+    TASKS {
+        int id
+        string title
+        string description
+        string status
+        int column_id
+    }
 ```
+
+
 
 ---
 
