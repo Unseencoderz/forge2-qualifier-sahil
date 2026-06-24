@@ -1,40 +1,178 @@
-# Forge 2 · Edition 1 Qualifier — Sahil Gautam
+<div align="center">
 
-This project is a Forge 2 qualifier submission with a documented two-agent system and a working Kanban app. Hermes acts as the planning/orchestration agent, and OpenClaw acts as the coding/execution agent.
+# ⚡ KanFlow — Forge 2 · Edition 1 Qualifier
 
-## Live URL
-[to be filled after deployment]
+**A full-stack Kanban board built by a two-agent AI system**
 
-## Agent System
-- OpenClaw (the hands): coding agent, works in #agent-coder
-- Hermes (the brain): orchestrator, plans in #sprint-main
+*Hermes (brain) + OpenClaw (hands) — powered by Google Gemini 2.5 Flash*
 
-## Models Used and Why
-- Both agents: google/gemini-2.5-flash
-- Reason: 1 million TPM free tier handles large codebase contexts. Groq was initially used but hit 12,000 TPM ceiling at 53,000 token context. Gemini resolved this.
+![Multi-Agent System Architecture](./demoImages/Multi-Agent%20System%20Architecture.png)
 
-## Slack Channel Scheme
-- #sprint-main: human talks to Hermes, plans land here
-- #agent-coder: OpenClaw works and reports here
-- #agent-log: autonomous cron runs logged here
+</div>
 
-## Kanban App Features
+---
+
+## 📌 Overview
+
+This is the **Forge 2 Edition 1 Qualifier** submission by **Sahil Gautam**.
+
+The project demonstrates a working **two-agent AI system** that collaboratively planned and built a full-stack Kanban application from scratch — entirely through Slack. Hermes acted as the orchestrator/planner, and OpenClaw acted as the coder/executor. All decisions, task delegation, and status reports happened over Slack channels in real time.
+
+---
+
+## 🌐 Live URL
+
+> _To be filled after deployment_
+
+---
+
+## 🤖 The Two-Agent System
+
+| Agent | Nickname | Role | Channel | Model |
+|-------|----------|------|---------|-------|
+| **Hermes** | The Brain | Orchestrator — reads goals, creates plans, delegates work, runs cron jobs | `#sprint-main` | `google/gemini-2.5-flash` |
+| **OpenClaw** | The Hands | Coder — receives tasks, writes code, runs commands, reports status | `#agent-coder` | `google/gemini-2.5-flash` |
+
+### Agent Workflow
+
+![Agent Workflow Diagram](./demoImages/Agent%20Workflow%20Diagram.png)
+
+The full loop: **Human Request → #sprint-main → Hermes Analysis → Task Breakdown → #agent-coder → OpenClaw Development → Code Changes → Repository → #agent-log → Status Report → Human Review**
+
+### Human-in-the-Loop Flow
+
+```
+1. Human posts goal in #sprint-main
+2. Hermes reads goal and creates a plan
+3. Hermes delegates implementation tasks to OpenClaw in #agent-coder
+4. OpenClaw builds requested code and runs verification commands
+5. OpenClaw posts a "What I Did / What's Left / What Needs Your Call" status report
+6. Human reviews the result
+7. Human approves the next task or requests changes
+```
+
+---
+
+## 💬 Slack Setup
+
+### Channel Scheme
+
+| Channel | Purpose | Who Posts | Who Reads |
+|---------|---------|-----------|-----------|
+| `#sprint-main` | Planning, human approvals, Hermes updates | Human, Hermes | Human, Hermes |
+| `#agent-coder` | Task execution and code reports | Hermes, OpenClaw | Human, Hermes, OpenClaw |
+| `#agent-log` | Autonomous cron run history | Cron, Hermes | Human, Hermes |
+
+### Slack in Action
+
+![Slack Channels](./demoImages/slack.png)
+
+---
+
+## 🧠 Agent Internals
+
+### Hermes Agent (TUI)
+
+Hermes runs as a terminal agent with persistent memory, SKILL.md files for structured outputs, cron jobs for autonomous operation, and access to 28 tools and 62 skills.
+
+![Hermes Agent TUI](./demoImages/hermes-agent-tui.png)
+
+### OpenClaw Gateway
+
+OpenClaw connects via Slack Socket Mode, resolving all three channels at startup and responding to `@mention` events routed through its gateway.
+
+![OpenClaw Gateway](./demoImages/openclaw-gateway.png)
+
+### Hermes Slack Configuration
+
+![Hermes Slack Configuration](./demoImages/hermes-slack-configuration.png)
+
+### Custom SKILL.md
+
+A custom `skills/status-report/SKILL.md` was written to teach Hermes how to format every status update as three sections: **What I Did / What's Left / What Needs Your Call**.
+
+![SKILL.md in VS Code](./demoImages/skill.md.png)
+
+---
+
+## 🗂️ Kanban App Features
+
 - [x] Boards can be created, viewed, and deleted
 - [x] Lists can be added to boards and deleted
 - [x] Cards can be created, edited, deleted, and moved between lists
-- [x] Tags can be created and attached or detached from cards
-- [x] Members can be created and assigned to cards, with overdue card styling
+- [x] Tags can be created with custom colours and attached or detached from cards
+- [x] Members can be created and assigned to or unassigned from cards
+- [x] Overdue card detection with visual highlighting
+- [x] Modern dark-mode UI with glassmorphism, animations, and Inter typography
 
-## Local Run Instructions
+---
 
-### Backend
-```bash
-cd backend
-php artisan serve --port=8000
+## 🏗️ Architecture
+
+### Application Architecture
+
+![Kanban Application Architecture](./demoImages/Kanban%20Application%20Architecture.png)
+
+### Deployment Architecture
+
+![Deployment Architecture](./demoImages/Deployment%20Architecture.png)
+
+> Frontend → **Netlify** · Backend → **Render** · Database → **SQLite**
+
+### Database Schema
+
+![Database ER Diagram](./demoImages/Database%20ER%20Diagram%20(Kanban).png)
+
+### Agent Flow (Mermaid)
+
+```mermaid
+flowchart TD
+    H[Human] -->|posts goal| SM[#sprint-main]
+    SM --> HB[Hermes Brain]
+    HB -->|creates plan| SM
+    HB -->|delegates task| AC[#agent-coder]
+    AC --> OC[OpenClaw Hands]
+    OC -->|writes code| FS[File System]
+    OC -->|runs commands| FS
+    OC -->|reports back| AC
+    AC -->|What I Did report| H
+    H -->|approves| HB
+    HB -->|next task| AC
+
+    HM[Hermes Memory] -.->|recalls context| HB
+    SK[SKILL.md] -.->|formats reports| OC
+    CR[Cron Job] -.->|autonomous post| SM
+
+    GM[Gemini 2.5 Flash] -.->|powers| HB
+    GM -.->|powers| OC
 ```
 
-If starting from a fresh checkout:
+---
 
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Laravel PHP 8.4, SQLite, REST API |
+| **Frontend** | React 18 + Vite, Axios, Vanilla CSS |
+| **Agents** | Hermes (brain) + OpenClaw (hands) |
+| **LLM** | Google Gemini 2.5 Flash (`google/gemini-2.5-flash`) |
+| **Comms** | Slack (Socket Mode) |
+| **Deployment** | Netlify (frontend) + Render (backend) |
+
+---
+
+## 🚀 Local Run Instructions
+
+### Prerequisites
+
+- PHP 8.4+ with Composer
+- Node.js 18+ with npm
+- SQLite
+
+### Backend
+
+**Fresh checkout:**
 ```bash
 cd backend
 composer install
@@ -45,21 +183,80 @@ php artisan migrate
 php artisan serve --port=8000
 ```
 
+**Subsequent runs:**
+```bash
+cd backend
+php artisan serve --port=8000
+```
+
 ### Frontend
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-## Tech Stack
-- Backend: Laravel PHP 8.4, SQLite, REST API
-- Frontend: React + Vite, Axios
-- Agents: OpenClaw + Hermes
-- Models: Google Gemini 2.5 Flash
-- Comms: Slack Socket Mode
+> **Note:** Make sure the backend is running on port 8000 before starting the frontend.
 
-## Rate Limit Note
-Groq's 12,000 TPM free limit was hit when OpenClaw's context grew to 53,000 tokens mid-build. The project switched to Gemini 2.5 Flash with a 1M TPM free tier. This is documented in the handbook as an expected challenge and is evidence of real large-context agent usage.
+---
+
+## 📁 Project Structure
+
+```text
+forge2-qualifier-sahil/
+├── README.md
+├── ARCHITECTURE.md
+├── agent-log.md
+├── .env.example
+├── demoImages/               ← Screenshots and architecture diagrams
+├── backend/
+│   ├── app/Http/Controllers/ ← REST API controllers
+│   ├── app/Models/           ← Eloquent models
+│   ├── database/
+│   │   ├── database.sqlite
+│   │   └── migrations/
+│   ├── routes/api.php
+│   ├── render.yaml           ← Render deployment config
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx           ← Root component + sidebar
+│   │   ├── BoardView.jsx     ← Board + add-list UI
+│   │   ├── ListColumn.jsx    ← Kanban column
+│   │   ├── CardItem.jsx      ← Card with tags and member avatars
+│   │   ├── CardModal.jsx     ← Full card editor modal
+│   │   ├── api.js            ← Axios API client
+│   │   └── App.css           ← Design system (dark mode, glassmorphism)
+│   ├── netlify.toml          ← Netlify deployment config
+│   └── .env.example
+├── skills/
+│   └── status-report/
+│       └── SKILL.md          ← Custom agent skill for status reports
+└── slack-export/
+    └── README.txt
+```
+
+---
+
+## 🔬 Model Routing Note
+
+Both agents use **Google Gemini 2.5 Flash** with a **1 million TPM** free tier.
+
+Groq was initially tested but hit its **12,000 TPM** free-tier ceiling when OpenClaw's context grew to **53,000 tokens** mid-build. Switching to Gemini resolved all context truncation issues and kept the agent loop simple with a single LLM provider.
+
+---
+
+## ⏰ Autonomous Operation
+
+Hermes runs an autonomous **cron job every 10 minutes** that posts a planning or status update to `#sprint-main` without requiring a direct human prompt — demonstrating genuinely autonomous multi-agent coordination.
+
+---
+
+<div align="center">
+
+Made with 🤖 by **Hermes** + **OpenClaw** · Directed by **Sahil Gautam**
+
+</div>

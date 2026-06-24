@@ -35,37 +35,69 @@ function App() {
 
   return (
     <div className="app-shell">
+      {/* ── Sidebar ── */}
       <aside className="boards-panel">
-        <h1>Boards</h1>
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">⚡</div>
+          <h1>KanFlow</h1>
+        </div>
+
+        <span className="sidebar-section-label">New Board</span>
         <div className="create-row">
           <input
+            id="new-board-input"
             value={newBoardName}
-            onChange={(event) => setNewBoardName(event.target.value)}
-            onKeyDown={(event) => event.key === 'Enter' && addBoard()}
-            placeholder="New board"
+            onChange={(e) => setNewBoardName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addBoard()}
+            placeholder="Board name…"
           />
-          <button type="button" onClick={addBoard}>Add</button>
+          <button type="button" id="add-board-btn" className="btn-primary" onClick={addBoard}>
+            +
+          </button>
         </div>
+
+        <span className="sidebar-section-label" style={{ marginTop: 12 }}>My Boards</span>
         <div className="board-buttons">
+          {boards.length === 0 && (
+            <p style={{ color: 'var(--text-muted)', fontSize: 12, padding: '4px 8px' }}>
+              No boards yet
+            </p>
+          )}
           {boards.map((board) => (
             <div className="board-row" key={board.id}>
               <button
                 type="button"
-                className={selectedBoardId === board.id ? 'active' : ''}
+                id={`board-btn-${board.id}`}
+                className={`board-row-btn ${selectedBoardId === board.id ? 'active' : ''}`}
                 onClick={() => setSelectedBoardId(board.id)}
+                title={board.name}
               >
                 {board.name}
               </button>
-              <button type="button" onClick={() => removeBoard(board.id)}>x</button>
+              <button
+                type="button"
+                id={`delete-board-${board.id}`}
+                className="btn-icon"
+                onClick={() => removeBoard(board.id)}
+                title="Delete board"
+                aria-label="Delete board"
+              >
+                ✕
+              </button>
             </div>
           ))}
         </div>
       </aside>
+
+      {/* ── Main ── */}
       <main className="board-main">
         {selectedBoardId ? (
           <BoardView boardId={selectedBoardId} />
         ) : (
-          <p className="empty-state">Create a board to begin.</p>
+          <div className="empty-state">
+            <span className="empty-state-icon">📋</span>
+            <p>Select a board or create one to get started.</p>
+          </div>
         )}
       </main>
     </div>
